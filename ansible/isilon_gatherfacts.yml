@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: gather info 
+    dellemc_isilon_gatherfacts:
+      onefs_host: "192.168.117.52"
+      port_no: "8080"
+      verify_ssl: "false"
+      api_user: "root"
+      api_password: "root"
+      gather_subset:
+        - attributes
+        - access_zones
+        - nodes
+    register: subset_result
+  - debug:
+      var: subset_result
