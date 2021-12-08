@@ -1,0 +1,66 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    onefs_host: "192.168.117.52"
+    port_no: "8080"
+    verify_ssl: False
+    api_user: "root"
+    api_password: "root"
+    name: "demo_smb"
+    system_access_zone: "System"
+    system_az_path: "/ifs/smbshare"
+    system_az_user: "admin"
+    system_az_group: "admin"
+    wellknown: "wellknown"
+    state_present: "present"
+    state_absent: "absent"
+    description: "share description"
+  tasks:
+  - name: create the file system 
+    dellemc_isilon_filesystem:
+      onefs_host: "{{onefs_host}}"
+      port_no: "{{port_no}}"
+      verify_ssl: "{{verify_ssl}}"
+      api_user: "{{api_user}}"
+      api_password: "{{api_password}}"
+      path: "{{system_az_path}}"
+      owner: 
+        name: "Ning"
+      state: "present"
+  - name: create SMB share 
+    dellemc_isilon_smb:
+      onefs_host: "{{onefs_host}}"
+      port_no: "{{port_no}}"
+      verify_ssl: "{{verify_ssl}}"
+      api_user: "{{api_user}}"
+      api_password: "{{api_password}}"
+      share_name: "{{name}}"
+      path: "{{system_az_path}}"
+      description: "{{description}}"
+      permissions:
+      - user_name: "{{system_az_user}}"
+        permission: "full"
+        permission_type: "allow"
+        provider_type: "FILE:System"
+      - group_name: "{{system_az_group}}"
+        permission: "read"
+        permission_type: "allow"
+        provider_type: "FILE:System"
+      - wellknow: "everyone"
+        permission: "read"
+        permission_type: "allow"
+      state: "{{state_present}}"
+  - name: pause
+    pause: prompt="Press enter to continue"
+
+  - name: Delete existing SMB share
+    dellemc_isilon_smb:
+      onefs_host: "{{onefs_host}}"
+      port_no: "{{port_no}}"
+      verify_ssl: "{{verify_ssl}}"
+      api_user: "{{api_user}}"
+      api_password: "{{api_password}}"
+      share_name: "{{name}}"
+      access_zone: "{{system_access_zone}}"
+      state: "{{state_absent}}"
